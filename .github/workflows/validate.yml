@@ -1,21 +1,35 @@
-name: Validate Expense Tracker Coach
+name: Validate Java Project
 on:
   push:
     branches: [main]
   pull_request:
+
 permissions:
   contents: read
+
 jobs:
-  validate:
+  compile-starter:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup Java
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '21'
-      - name: Validate learning materials
-        run: node tests/validate.js
-      - name: Check Java starter compiles
-        run: javac starter/PersonalExpenseTracker.java
+          java-version: '17'
+      - name: Compile the student starter
+        run: |
+          mkdir -p out
+          javac -d out src/main/java/cs101/expenses/PersonalExpenseTracker.java
+      - name: Verify introductory menu and Exit
+        run: |
+          printf '100\n7\n' | java -cp out cs101.expenses.PersonalExpenseTracker | tee /tmp/project-output.txt
+          grep -q 'Budget set to SAR 100.00' /tmp/project-output.txt
+          grep -q 'Goodbye!' /tmp/project-output.txt
+      - name: Confirm learning resources exist
+        run: |
+          test "$(find learning -maxdepth 1 -name 'STEP-*.md' | wc -l)" -eq 7
+          test -f learning/QUIZ_ANSWERS.md
+          test -f TEST_PLAN.md
+          test -f RUBRIC.md
