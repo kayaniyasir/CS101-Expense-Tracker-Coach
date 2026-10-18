@@ -1,0 +1,21 @@
+name: Validate Expense Tracker Coach
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Validate learning materials
+        run: node tests/validate.js
+      - name: Check Java starter compiles
+        run: javac starter/PersonalExpenseTracker.java
